@@ -4,45 +4,48 @@
 
 Welcome to your **local Jenkins setup**! In this project, you will set up and maintain your own Jenkins server running inside Docker. Follow the instructions carefully.
 
-------------------------------------------------------------------------
-## 🔹 Pre-requisites
-
-This project is designed to be run locally on your machine. You will need to have **Docker** and **Docker Compose** installed.
-You need to fork this repository to your own GitHub account and clone it to your local machine.
+|  |
+|:-----------------------------------------------------------------------|
+| \## 🔹 Pre-requisites |
+| This project is designed to be run locally on your machine. You will need to have **Docker** and **Docker Compose** installed. You need to **fork** this repository to your own GitHub account and **clone** it to your local machine. |
 
 ## 🔹 How to Set Up Jenkins Locally
 
-1.  **Build your Jenkins Docker image**
+You do **not** need to build the Docker image yourself. You can still review the dockerfile if curious.\
+Instead, you will **pull the pre-built image** from Docker Hub and use it directly.
 
-    Use the provided `dockerfile` to build a Jenkins image with R installed:
+1.  **Fork this repository**
+
+    Fork this repository to your own GitHub account, and then clone it to your local machine.
+
+2.  **Pull the Jenkins Docker image from Docker Hub**
+
+    Run:
 
     ``` bash
-    docker build -f dockerfile -t <your-dockerhub-username>/jenkins:latest .
+    docker pull pkinif/jenkins:latest
     ```
 
-    ⚡ **Important**: Replace `<your-dockerhub-username>` with your **Docker Hub username**.\
-    (You will need it later to push your image to Docker Hub.)
+3.  **Launch Jenkins using Docker Compose**
 
-2.  **Launch Jenkins using Docker Compose**
-
-    Use the provided `docker-compose.yml`:
+    From your local clone of the repository, run:
 
     ``` bash
     docker compose up -d
     ```
 
     -   We are **mounting a local volume** (`./jenkins_home`) to **/var/jenkins_home** inside the container.
-    -   This means that even if you build a new Docker image and run `docker compose down && docker compose up`, **you will not lose your Jenkins jobs, configuration, or users**.
+    -   This means that even if you pull a new Docker image later and restart the container, **you will not lose your Jenkins jobs, configuration, or users**.
 
-3.  **First Startup: Unlock Jenkins**
+4.  **First Startup: Unlock Jenkins**
 
-    When you first access Jenkins (<http://localhost:8080>), it will ask for an **Administrator password**.
+    When you first access Jenkins at <http://localhost:8080>, it will ask for an **Administrator password**.
 
-    -   You can find this password inside your RStudio project, at:
+    You can find this password inside your local project:
 
-        ```         
-        ./jenkins_home/secrets/initialAdminPassword
-        ```
+    ``` bash
+    ./jenkins_home/secrets/initialAdminPassword
+    ```
 
     Example:
 
@@ -50,23 +53,23 @@ You need to fork this repository to your own GitHub account and clone it to your
     cat ./jenkins_home/secrets/initialAdminPassword
     ```
 
-4.  **Install Recommended Plugins**
+5.  **Install Recommended Plugins**
 
     After unlocking, Jenkins will prompt you to **install the recommended plugins**.
 
     Click **"Install Suggested Plugins"** and wait until the process is complete.
 
-5.  **Create Your Admin User**
+6.  **Create Your Admin User**
 
     After plugins installation, Jenkins will ask you to **create the first admin user**.
 
     -   Use a real email address! You will need it later.
 
-6.  **Save and Finish**
+7.  **Save and Finish**
 
     Once you complete the setup, click **"Save and Finish"**.
 
-7.  **Ready to Use!**
+8.  **Ready to Use!**
 
     Your Jenkins server is now ready.
 
@@ -76,14 +79,17 @@ You need to fork this repository to your own GitHub account and clone it to your
 
 -   **Linux Dependencies**
 
-    You are responsible for **updating the Linux dependencies** in the Dockerfile if your R data pipelines require specific system libraries.
+    If your R data pipelines require specific Linux system libraries, you may need to update the Docker image later.\
+    (Contact your instructor if needed.)
 
 -   **Persisted Data**
 
-    Thanks to the mounted volume, even if you:
+    Thanks to the mounted volume:
 
-    -   Build a new Docker image
-    -   Run `docker compose down` and then `docker compose up -d` ➔ **All your Jenkins configuration and jobs will persist**.
+    -   You can pull new version of the Docker images
+    -   Run `docker compose down` and then `docker compose up -d`
+
+    ➔ **Your Jenkins configuration and jobs will persist.**
 
 -   **Git Ignore**
 
@@ -119,10 +125,10 @@ You need to fork this repository to your own GitHub account and clone it to your
     docker compose down
     ```
 
--   **Pull a new image (if image updated)**
+-   **Pull the latest image (if updated)**
 
     ``` bash
-    docker pull <your-dockerhub-username>/jenkins:latest
+    docker pull pkinif/jenkins:latest
     docker compose down
     docker compose up -d
     ```
@@ -131,19 +137,10 @@ You need to fork this repository to your own GitHub account and clone it to your
 
 ## 🔹 GitHub Actions
 
-We will set up a GitHub Actions workflow that automatically builds your Docker image and pushes it to your Docker Hub account every time you push to the main branch.
+This repository uses a GitHub Actions workflow that **automatically builds and pushes** the Docker image to Docker Hub every time a new push is made to the main branch.
 
-------------------------------------------------------------------------
-
-## 🔹 Summary
-
-You are responsible for your Jenkins environment:
-
-\- Keep your volume mounted.
-
-\- Update Linux dependencies if needed.
-
-\- Maintain your R pipelines inside Jenkins safely.
+-   You can find the workflow [here](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml).
+-   The latest Docker image is always available at: `pkinif/jenkins:latest`.
 
 Happy CI/CD building! 🚀
 
