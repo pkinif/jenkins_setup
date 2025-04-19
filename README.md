@@ -1,3 +1,5 @@
+[![Build and Push Docker image](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml/badge.svg)](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml)
+
 # Jenkins Setup for Local Development
 
 Welcome to your **local Jenkins setup**! In this project, you will set up and maintain your own Jenkins server running inside Docker. Follow the instructions carefully.
