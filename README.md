@@ -105,6 +105,15 @@ You need to fork this repository to your own GitHub account and clone it to your
     usethis::edit_r_environ(scope = 'project')
     ```
     
+    Add the following lines to your `.Renviron` file:
+
+    ``` r
+    # .Renviron
+    PG_DB = '...'
+    PG_HOST = '...'
+    PG_USER = '...'
+    PG_PASSWORD = '...'
+    ```
 
 -   **Admin Password**
 
