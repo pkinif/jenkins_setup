@@ -4,10 +4,9 @@
 
 Welcome to your **local Jenkins setup**! In this project, you will set up and maintain your own Jenkins server running inside Docker. Follow the instructions carefully.
 
-|  |
-|:-----------------------------------------------------------------------|
-| \## 🔹 Pre-requisites |
-| This project is designed to be run locally on your machine. You will need to have **Docker** and **Docker Compose** installed. You need to **fork** this repository to your own GitHub account and **clone** it to your local machine. |
+## 🔹 Pre-requisites
+
+| This project is designed to be run locally on your machine. You will need to have **Docker** and **Docker Compose** installed. You need to **fork** this repository to your own GitHub account and **clone** it to your local machine. \|
 
 ## 🔹 How to Set Up Jenkins Locally
 
