@@ -5,3 +5,5 @@
 jenkins_home
 *.Rproj
 .Renviron
+.ssh
+.ssh.pub
