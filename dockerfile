@@ -1,19 +1,31 @@
-# Start from the official Jenkins LTS image
 FROM jenkins/jenkins:latest
 
 USER root
 
-# Install R and system dependencies
+# Install base dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    r-base \
-    r-base-dev \
+    dirmngr \
+    gnupg \
+    software-properties-common \
+    wget \
+    ca-certificates \
     libcurl4-openssl-dev \
     libssl-dev \
     libxml2-dev \
     libpq-dev \
     libx11-dev \
     pandoc \
-    && apt-get clean
+    git
+
+# Adds a source where R 4.4.0 is available
+# we need R 4.4 for some packages
+RUN echo "deb https://cloud.r-project.org/bin/linux/debian bookworm-cran40/" > /etc/apt/sources.list.d/cran.list \
+    && apt-get update --allow-insecure-repositories || true \
+    && apt-get install -y --no-install-recommends --allow-unauthenticated \
+       r-base r-base-dev
+
+# Clean apt cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install renv
 RUN Rscript -e 'install.packages("renv")' && \
@@ -22,5 +34,4 @@ RUN Rscript -e 'install.packages("renv")' && \
 # Switch back to Jenkins user
 USER jenkins
 
-# Expose Jenkins port
 EXPOSE 8080
