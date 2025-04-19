@@ -149,6 +149,8 @@ You need to fork this repository to your own GitHub account and clone it to your
 
 We will set up a GitHub Actions workflow that automatically builds your Docker image and pushes it to your Docker Hub account every time you push to the main branch.
 
+------------------------------------------------------------------------
+
 ## 🔹 Summary
 
 You are responsible for your Jenkins environment:
