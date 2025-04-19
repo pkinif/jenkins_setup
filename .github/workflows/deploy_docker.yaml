@@ -24,4 +24,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: pkinif/jenkins:latest
+          tags: pierrickkinif/jenkins:latest
