@@ -7,3 +7,4 @@ jenkins_home
 .Renviron
 .ssh
 .ssh.pub
+.vscode/
