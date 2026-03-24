@@ -1,0 +1,14 @@
+# Copier ce fichier vers .Renviron (non versionné) et adapter les valeurs.
+# Ne jamais committer .Renviron avec de vrais secrets.
+#
+# Pour le déploiement automatisé vers EC2, les valeurs réelles vont dans
+# GitHub → Settings → Secrets (EC2_HOST, EC2_USER, EC2_SSH_KEY, EC2_DEPLOY_PATH).
+# Les noms ci-dessous servent surtout à la pédagogie / scripts locaux.
+
+# EC2_HOST=
+# EC2_USER=
+# EC2_DEPLOY_PATH=
+# EC2_SSH_KEY_PATH=~/.ssh/id_ed25519
+
+# Exemple d’URL Jenkins une fois l’instance démarrée (TP / doc)
+# JENKINS_URL=http://localhost:8080

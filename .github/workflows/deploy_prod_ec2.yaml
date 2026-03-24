@@ -1,0 +1,45 @@
+# CD production : uniquement sur la branche prod.
+# Un seul mécanisme de déploiement sur l’instance (pas de Watchtower côté serveur).
+name: Prod — build, push Docker Hub, deploy EC2
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: pierrickkinif/jenkins:latest
+
+  deploy-ec2:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy on EC2 (pull + recreate Jenkins)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -eu
+            cd ${{ secrets.EC2_DEPLOY_PATH }}
+            docker compose pull jenkins
+            docker compose up -d jenkins --force-recreate --remove-orphans
