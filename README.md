@@ -132,6 +132,41 @@ Instead, you will **pull the pre-built image** from Docker Hub and use it direct
     docker compose up -d
     ```
 
+    The Compose file uses **`pull_policy: always`** on the Jenkins service, so a simple `docker compose up -d` will usually **fetch the newest image from Docker Hub** before starting the container (your `jenkins_home` volume still keeps all Jenkins data).
+
+------------------------------------------------------------------------
+
+## 🔹 Local CD after a new image on Docker Hub
+
+When the GitHub Action builds and **pushes** a new image to Docker Hub (same tag, e.g. `latest`), your machine still runs the **old** container until you refresh it.
+
+**Option A — Manual (no extra container)**  
+From your clone:
+
+``` bash
+docker compose pull jenkins
+docker compose up -d jenkins
+```
+
+(or `docker compose up -d` thanks to `pull_policy: always`).
+
+**Option B — Automatic checks (Watchtower)**  
+This repo can run [Watchtower](https://github.com/nicholas-fedor/watchtower) so Docker **polls Docker Hub** and **recreates** the `jenkins` container when the image digest changes (useful for teaching local CD without a paid server).
+
+1. Start Jenkins **and** Watchtower:
+
+    ``` bash
+    docker compose --profile auto-cd up -d
+    ```
+
+2. See that it is working (look for `Update session completed` and `updated=1` after a new Hub push):
+
+    ``` bash
+    docker compose --profile auto-cd logs -f watchtower
+    ```
+
+Watchtower only runs if you use the **`auto-cd`** profile. It must use an image compatible with recent Docker Engine (this project uses **`nickfedor/watchtower`**; the older `containrrr/watchtower` image can fail on Docker 29+). While your PC is off, nothing is updated until Docker runs again.
+
 ------------------------------------------------------------------------
 
 ## 🔹 GitHub Actions
