@@ -14,7 +14,19 @@ Le workflow `main` (`.github/workflows/deploy_docker.yaml`) continue de builder 
 2. Utilisateur SSH avec accès à Docker (`docker` sans `sudo`, ou adapter les commandes).
 3. Clone de ce dépôt (branche `prod` ou `main` selon ta politique) dans un répertoire fixe, par ex. `/home/ubuntu/jenkins_setup`, contenant au minimum `docker-compose.yml` et le volume monté `./jenkins_home`.
 4. Premier démarrage manuel une fois : `docker compose up -d` (sans `--profile auto-cd`).
-5. Groupe de sécurité : SSH (22) depuis les IP nécessaires ; port **8080** (ou celui exposé) pour Jenkins selon ta politique réseau.
+5. Groupe de sécurité : voir section **Réseau** ci-dessous ; port **8080** pour Jenkins.
+
+## Réseau : SSH depuis GitHub Actions
+
+Le job **deploy-ec2** ouvre une session SSH **depuis les runners GitHub** (IP **non fixes**). Ton security group doit donc autoriser le SSH (port **22**) **vers** ces IP, sinon le déploiement échoue alors que ton accès manuel depuis ton PC fonctionne.
+
+Options courantes :
+
+1. **TP / test** : règle inbound **SSH** depuis `0.0.0.0/0` (à durcir ensuite) — le plus simple.
+2. **Plus propre** : récupérer les plages `actions` depuis l’API GitHub ([`GET https://api.github.com/meta`](https://api.github.com/meta)) et les ajouter en inbound (liste longue, à maintenir).
+3. **Alternative** : runner **self-hosted** sur l’EC2 ou déploiement via **SSM** / autre, sans ouvrir SSH au monde.
+
+Pense aussi à associer sur l’EC2 la **clé publique** correspondant au secret `EC2_SSH_KEY` (fichier `~/.ssh/authorized_keys` de `EC2_USER`).
 
 ## Secrets GitHub (Settings → Secrets and variables → Actions)
 
@@ -42,7 +54,9 @@ Le déploiement CI utilise les **secrets GitHub**, pas le `.Renviron` du runner.
 
 1. Intégrer les changements sur `main` comme d’habitude.
 2. Quand tu veux **livrer sur l’EC2** : merge (ou fast-forward) vers **`prod`** et pousse `origin prod`.
-3. Le workflow **Prod — build, push Docker Hub, deploy EC2** exécute : build image → push Hub → SSH sur l’EC2 → `docker compose pull jenkins` → `up -d --force-recreate`.
+3. Le workflow **Prod — build, push Docker Hub, deploy EC2** exécute : build image → push Hub → SSH sur l’EC2 → `git` met à jour le clone sur **`prod`** (si c’est un dépôt Git) → `docker compose pull jenkins` → `up -d --force-recreate`.
+
+Pour **tester** sans merger : onglet **Actions** → workflow **Prod — …** → **Run workflow** sur la branche `prod` (après avoir poussé un commit sur `prod`, ou en ré-exécutant un run récent).
 
 ## SSH sur un port autre que 22
 

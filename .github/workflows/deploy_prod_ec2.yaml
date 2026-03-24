@@ -41,5 +41,10 @@ jobs:
           script: |
             set -eu
             cd ${{ secrets.EC2_DEPLOY_PATH }}
+            if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+              git fetch origin prod
+              git checkout prod
+              git merge --ff-only FETCH_HEAD
+            fi
             docker compose pull jenkins
             docker compose up -d jenkins --force-recreate --remove-orphans
