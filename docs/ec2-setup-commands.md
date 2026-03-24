@@ -1,20 +1,20 @@
-# EC2 — commandes de référence (Ubuntu)
+# EC2 quick reference (Ubuntu)
 
-Remplace l’IP et le chemin de clé par les tiens.
+Replace the key path and host with yours.
 
 ```bash
-ssh -i "/chemin/vers/ta-cle.pem" ubuntu@IP_PUBLIQUE_EC2
+ssh -i "/path/to/your-key.pem" ubuntu@YOUR_PUBLIC_IP
 ```
 
-## Docker + Git (première installation)
+## First-time Docker + Git
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y ca-certificates curl git
-# … puis suis la doc Docker officielle pour Ubuntu (repo docker.com)
+# Then install Docker from the official Docker docs for Ubuntu (download.docker.com).
 sudo systemctl enable --now docker
 sudo usermod -aG docker "$USER"
-exit   # puis reconnecte-toi en SSH
+exit   # log out and SSH back in so the group applies
 docker --version
 docker compose version
 docker run --rm hello-world

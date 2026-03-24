@@ -1,206 +1,131 @@
-[![Build and Push Docker image](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml/badge.svg)](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml)
-[![Prod — EC2 deploy](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_prod_ec2.yaml/badge.svg?branch=prod)](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_prod_ec2.yaml)
+[![Build and Push](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml/badge.svg)](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml)
+[![Prod EC2 deploy](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_prod_ec2.yaml/badge.svg?branch=prod)](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_prod_ec2.yaml)
 
-# Jenkins Setup for Local Development
+# Jenkins in Docker (with R tooling)
 
-Welcome to your **local Jenkins setup**! In this project, you will set up and maintain your own Jenkins server running inside Docker. Follow the instructions carefully!
+This repo is how I ship a **Jenkins** image tailored for **R** workflows (renv-friendly, common system libs, Pandoc, Git). Everything runs in **Docker Compose**; data lives in a bind-mounted `jenkins_home` so jobs and config survive image updates.
 
-## 🔹 Pre-requisites
+I push the image to **Docker Hub** as `pierrickkinif/jenkins:latest` from GitHub Actions. You can use it as-is or fork the repo and adjust the `dockerfile` / workflows.
 
-| This project is designed to be run locally on your machine. You will need to have **Docker** and **Docker Compose** installed. You need to **fork** this repository to your own GitHub account and **clone** it to your local machine. \|
+---
 
-## 🔹 How to Set Up Jenkins Locally
+## What you need
 
-You do **not** need to build the Docker image yourself. You can still review the dockerfile if curious.\
-Instead, you will **pull the pre-built image** from Docker Hub and use it directly.
+- **Docker** and **Docker Compose** (v2 plugin, `docker compose` command).
+- A clone of this repository if you want the `docker-compose.yml` and docs locally (optional if you only pull the image).
 
-1.  **Fork this repository**
+---
 
-    Fork this repository to your own GitHub account, and then clone it to your local machine.
+## Run it locally
 
-2.  **Pull the Jenkins Docker image from Docker Hub**
+You do **not** have to build the image. Pull and start:
 
-    Run:
-
-    ``` bash
-    docker pull pkinif/jenkins:latest
-    ```
-
-3.  **Launch Jenkins using Docker Compose**
-
-    From your local clone of the repository, run:
-
-    ``` bash
-    docker compose up -d
-    ```
-
-    -   We are **mounting a local volume** (`./jenkins_home`) to **/var/jenkins_home** inside the container.
-    -   This means that even if you pull a new Docker image later and restart the container, **you will not lose your Jenkins jobs, configuration, or users**.
-
-4.  **First Startup: Unlock Jenkins**
-
-    When you first access Jenkins at <http://localhost:8080>, it will ask for an **Administrator password**.
-
-    You can find this password inside your local project:
-
-    ``` bash
-    ./jenkins_home/secrets/initialAdminPassword
-    ```
-
-    Example:
-
-    ``` bash
-    cat ./jenkins_home/secrets/initialAdminPassword
-    ```
-
-5.  **Install Recommended Plugins**
-
-    After unlocking, Jenkins will prompt you to **install the recommended plugins**.
-
-    Click **"Install Suggested Plugins"** and wait until the process is complete.
-
-6.  **Create Your Admin User**
-
-    After plugins installation, Jenkins will ask you to **create the first admin user**.
-
-    -   Use a real email address! You will need it later.
-
-7.  **Save and Finish**
-
-    Once you complete the setup, click **"Save and Finish"**.
-
-8.  **Ready to Use!**
-
-    Your Jenkins server is now ready.
-
-------------------------------------------------------------------------
-
-## 🔹 Important Notes
-
--   **Linux Dependencies**
-
-    If your R data pipelines require specific Linux system libraries, you may need to update the Docker image later.\
-    (Contact your instructor if needed.)
-
--   **Persisted Data**
-
-    Thanks to the mounted volume:
-
-    -   You can pull new version of the Docker images
-    -   Run `docker compose down` and then `docker compose up -d`
-
-    ➔ **Your Jenkins configuration and jobs will persist.**
-
--   **Git Ignore**
-
-    To avoid pushing your local Jenkins data into GitHub, the following is included in `.gitignore`:
-
-    ``` r
-    .Rproj.user
-    .Rhistory
-    .RData
-    .Ruserdata
-    jenkins_home
-    *.Rproj
-    .Renviron
-    ```
-
--   **Admin Password**
-
-    You only need to unlock Jenkins once. If you recreate your container later using the same volume, **you won't need the initialAdminPassword again**.
-
-------------------------------------------------------------------------
-
-## 🔹 Useful Docker Commands
-
--   **Start Container**
-
-    ``` bash
-    docker compose up -d
-    ```
-
--   **Stop Container**
-
-    ``` bash
-    docker compose down
-    ```
-
--   **Pull the latest image (if updated)**
-
-    ``` bash
-    docker pull pkinif/jenkins:latest
-    docker compose down
-    docker compose up -d
-    ```
-
-    The Compose file uses **`pull_policy: always`** on the Jenkins service, so a simple `docker compose up -d` will usually **fetch the newest image from Docker Hub** before starting the container (your `jenkins_home` volume still keeps all Jenkins data).
-
-------------------------------------------------------------------------
-
-## 🔹 Local CD after a new image on Docker Hub
-
-When the GitHub Action builds and **pushes** a new image to Docker Hub (same tag, e.g. `latest`), your machine still runs the **old** container until you refresh it.
-
-**Option A — Manual (no extra container)**  
-From your clone:
-
-``` bash
-docker compose pull jenkins
-docker compose up -d jenkins
+```bash
+docker compose up -d
 ```
 
-(or `docker compose up -d` thanks to `pull_policy: always`).
+`docker-compose.yml` points at `pierrickkinif/jenkins:latest` and sets `pull_policy: always`, so a plain `docker compose up -d` usually pulls the newest `latest` before starting.
 
-**Option B — Automatic checks (Watchtower)**  
-This repo can run [Watchtower](https://github.com/nicholas-fedor/watchtower) so Docker **polls Docker Hub** and **recreates** the `jenkins` container when the image digest changes (useful for teaching local CD without a paid server).
+**Volume:** `./jenkins_home` on the host is mounted to `/var/jenkins_home` in the container. That is where Jenkins stores everything that matters.
 
-1. Start Jenkins **and** Watchtower:
+**First login:** open [http://localhost:8080](http://localhost:8080). Unlock with the initial password:
 
-    ``` bash
-    docker compose --profile auto-cd up -d
-    ```
+```bash
+cat ./jenkins_home/secrets/initialAdminPassword
+```
 
-2. See that it is working (look for `Update session completed` and `updated=1` after a new Hub push):
+Or from inside the container:
 
-    ``` bash
-    docker compose --profile auto-cd logs -f watchtower
-    ```
+```bash
+docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
 
-Watchtower only runs if you use the **`auto-cd`** profile. It must use an image compatible with recent Docker Engine (this project uses **`nickfedor/watchtower`**; the older `containrrr/watchtower` image can fail on Docker 29+). While your PC is off, nothing is updated until Docker runs again.
+Complete the setup wizard (suggested plugins, admin user, etc.). After that, you normally do not need the initial password again as long as you keep the same `jenkins_home` volume.
 
-------------------------------------------------------------------------
+---
 
-## 🔹 See that Jenkins was updated by CI/CD (class demo)
+## Permissions on Linux / EC2
 
-Each image built on GitHub Actions embeds **when** it was built, **which commit** of this repo, and **which workflow** ran. After `docker compose up -d` (or pull + up), run:
+If Jenkins complains it cannot write `JENKINS_HOME`, the bind-mounted directory is probably owned by the wrong uid. The image runs as user `jenkins` (typically uid **1000**). On the host:
 
-``` bash
+```bash
+sudo chown -R 1000:1000 ./jenkins_home
+```
+
+Adjust if your image uses a different uid (`docker run --rm pierrickkinif/jenkins:latest id jenkins`).
+
+---
+
+## Day-to-day Docker commands
+
+| Task | Command |
+|------|---------|
+| Start | `docker compose up -d` |
+| Stop | `docker compose down` |
+| Refresh image and recreate Jenkins | `docker compose pull jenkins && docker compose up -d jenkins` |
+
+---
+
+## Optional: Watchtower (local auto-update)
+
+I added an **optional** Compose profile `auto-cd` that runs [nickfedor/watchtower](https://github.com/nicholas-fedor/watchtower) so Docker Hub is polled and the `jenkins` container is recreated when `latest` changes. Handy for demos or laptops that stay on; I do **not** rely on this for production EC2 (I use GitHub Actions SSH deploy instead—see `docs/production.md`).
+
+```bash
+docker compose --profile auto-cd up -d
+docker compose --profile auto-cd logs -f watchtower
+```
+
+Use `nickfedor/watchtower`, not the old `containrrr/watchtower` image, on recent Docker Engine (API 1.44+). If the machine sleeps, nothing updates until Docker runs again.
+
+---
+
+## CI/CD: prove the image came from GitHub Actions
+
+Every CI build bakes a small manifest into the image:
+
+```bash
 docker exec jenkins cat /opt/jenkins-cicd-info.txt
 ```
 
-You should see a UTC timestamp, the Git SHA, the workflow name, and the primary tag pushed for that build.
+You get UTC build time, repo commit SHA, workflow name, and the primary tag for that run.
 
-On [Docker Hub tags](https://hub.docker.com/r/pierrickkinif/jenkins/tags), the same build is published as:
+The same build is tagged on Docker Hub as:
 
-- **`latest`** (used by `docker compose` in this repo)
-- **`main-123`** or **`prod-456`** (branch name + GitHub Actions run number)
-- **`sha-<full_commit_hash>`** (exact commit)
+- `pierrickkinif/jenkins:latest` (what Compose uses)
+- `pierrickkinif/jenkins:<branch>-<run_number>` (e.g. `main-42`, `prod-12`)
+- `pierrickkinif/jenkins:sha-<full_commit_sha>`
 
-So students can match **Actions → run N → image tags on Hub → file inside the container**.
+Useful to line up **Actions → run → Hub tags → file in the container**.
 
-------------------------------------------------------------------------
+---
 
-## 🔹 GitHub Actions
+## GitHub Actions (summary)
 
-This repository uses GitHub Actions to **build and push** the Docker image to Docker Hub:
+| Workflow | Trigger | What it does |
+|----------|---------|----------------|
+| [deploy_docker.yaml](.github/workflows/deploy_docker.yaml) | Push to `main` | Build, push image to Docker Hub (with build args + extra tags). |
+| [deploy_prod_ec2.yaml](.github/workflows/deploy_prod_ec2.yaml) | Push to `prod` | Same build/push, then SSH to EC2, `git pull` on the deploy path, `docker compose pull` + recreate Jenkins. |
 
-- **Main branch:** [Build and Push](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml) — runs on every push to `main`.
-- **Prod branch (instructor / EC2):** [Prod — build, push, deploy EC2](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_prod_ec2.yaml) — runs on every push to `prod` (see `docs/PROD.md`).
+Secrets and EC2 setup are documented in **[docs/production.md](docs/production.md)**. EC2 bootstrap snippets live in **[docs/ec2-setup-commands.md](docs/ec2-setup-commands.md)**.
 
-The Compose file pulls **`pierrickkinif/jenkins:latest`**. Older README examples may say `pkinif/jenkins`; use the same image as in `docker-compose.yml`.
+---
 
-Happy CI/CD building! 🚀
+## Building the image yourself
 
-------------------------------------------------------------------------
+```bash
+docker build -t my-jenkins:local .
+```
 
-*If you have any issue starting Jenkins or recovering your pipelines, please contact your instructor.*
+The `dockerfile` extends `jenkins/jenkins:latest`, installs R (CRAN repo aligned with the Debian series in that base image), renv, and fixes permissions on `/usr/local/lib/R/site-library` for `renv::restore()` under the `jenkins` user.
+
+---
+
+## Repository layout (gitignored)
+
+`jenkins_home` is in `.gitignore` so local Jenkins data never gets committed. Same idea for `.Renviron`, `.Rproj` noise, etc.—see `.gitignore`.
+
+---
+
+## License / contact
+
+Use this repo for teaching or your own pipelines. If something breaks after an upstream Jenkins or base-image change, open an issue or adjust the `dockerfile` and pin a base tag you trust.
