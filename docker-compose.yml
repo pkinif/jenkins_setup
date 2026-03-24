@@ -12,9 +12,11 @@ services:
   # Optionnel : tire l’image à jour et redémarre Jenkins quand un nouveau digest
   # est disponible sur le registry (CD local sans serveur payant).
   # Usage : docker compose --profile auto-cd up -d
+  # Image nickfedor/* : fork maintenu, compatible Docker Engine 29+ (API ≥ 1.44) ;
+  # containrrr/watchtower plante en boucle avec les daemons récents.
   watchtower:
     profiles: [auto-cd]
-    image: containrrr/watchtower:latest
+    image: nickfedor/watchtower:latest
     restart: unless-stopped
     environment:
       WATCHTOWER_POLL_INTERVAL: "300"
