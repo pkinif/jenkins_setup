@@ -31,6 +31,10 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN Rscript -e 'install.packages("renv")' && \
     Rscript -e 'renv::consent(provided = TRUE)'
 
+# Allow renv restores that target R_LIBS_SITE (common when Rscript skips project .Rprofile).
+RUN mkdir -p /usr/local/lib/R/site-library \
+    && chown -R jenkins:jenkins /usr/local/lib/R/site-library
+
 # Switch back to Jenkins user
 USER jenkins
 
