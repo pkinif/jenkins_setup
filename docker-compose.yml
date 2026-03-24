@@ -2,8 +2,27 @@ services:
   jenkins:
     restart: unless-stopped
     ports:
-      - '8080:8080'
-    image: pkinif/jenkins:latest
+      - "8080:8080"
+    image: pierrickkinif/jenkins:latest
+    pull_policy: always
     container_name: jenkins
     volumes:
       - ./jenkins_home:/var/jenkins_home
+
+  # Optionnel : tire l’image à jour et redémarre Jenkins quand un nouveau digest
+  # est disponible sur le registry (CD local sans serveur payant).
+  # Usage : docker compose --profile auto-cd up -d
+  # Image nickfedor/* : fork maintenu, compatible Docker Engine 29+ (API ≥ 1.44) ;
+  # containrrr/watchtower plante en boucle avec les daemons récents.
+  watchtower:
+    profiles: [auto-cd]
+    image: nickfedor/watchtower:latest
+    restart: unless-stopped
+    environment:
+      WATCHTOWER_POLL_INTERVAL: "300"
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_INCLUDE_STOPPED: "false"
+      WATCHTOWER_LABEL_ENABLE: "false"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: jenkins
