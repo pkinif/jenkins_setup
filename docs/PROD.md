@@ -45,7 +45,9 @@ Les **vraies valeurs** ne doivent **pas** être commitées ; elles vivent unique
 
 1. Intégrer les changements sur `main` comme d’habitude.
 2. Quand tu veux **livrer sur l’EC2** : merge (ou fast-forward) vers **`prod`** et pousse `origin prod`.
-3. Le workflow **Prod — build, push Docker Hub, deploy EC2** exécute : build image → push Hub → SSH sur l’EC2 → `git` met à jour le clone sur **`prod`** (si c’est un dépôt Git) → `docker compose pull jenkins` → `up -d --force-recreate`.
+3. Le workflow **Prod — build, push Docker Hub, deploy EC2** exécute : build image → push Hub (**`latest`**, **`prod-<run>`**, **`sha-<commit>`**) → SSH sur l’EC2 → `git` met à jour le clone sur **`prod`** (si c’est un dépôt Git) → `docker compose pull jenkins` → `up -d --force-recreate`.
+
+Les élèves peuvent vérifier la trace CI/CD dans le conteneur : `docker exec jenkins cat /opt/jenkins-cicd-info.txt` (voir README).
 
 Pour **tester** sans merger : onglet **Actions** → workflow **Prod — …** → **Run workflow** sur la branche `prod` (après avoir poussé un commit sur `prod`, ou en ré-exécutant un run récent).
 

@@ -1,4 +1,5 @@
 [![Build and Push Docker image](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml/badge.svg)](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml)
+[![Prod — EC2 deploy](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_prod_ec2.yaml/badge.svg?branch=prod)](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_prod_ec2.yaml)
 
 # Jenkins Setup for Local Development
 
@@ -169,12 +170,34 @@ Watchtower only runs if you use the **`auto-cd`** profile. It must use an image 
 
 ------------------------------------------------------------------------
 
+## 🔹 See that Jenkins was updated by CI/CD (class demo)
+
+Each image built on GitHub Actions embeds **when** it was built, **which commit** of this repo, and **which workflow** ran. After `docker compose up -d` (or pull + up), run:
+
+``` bash
+docker exec jenkins cat /opt/jenkins-cicd-info.txt
+```
+
+You should see a UTC timestamp, the Git SHA, the workflow name, and the primary tag pushed for that build.
+
+On [Docker Hub tags](https://hub.docker.com/r/pierrickkinif/jenkins/tags), the same build is published as:
+
+- **`latest`** (used by `docker compose` in this repo)
+- **`main-123`** or **`prod-456`** (branch name + GitHub Actions run number)
+- **`sha-<full_commit_hash>`** (exact commit)
+
+So students can match **Actions → run N → image tags on Hub → file inside the container**.
+
+------------------------------------------------------------------------
+
 ## 🔹 GitHub Actions
 
-This repository uses a GitHub Actions workflow that **automatically builds and pushes** the Docker image to Docker Hub every time a new push is made to the main branch.
+This repository uses GitHub Actions to **build and push** the Docker image to Docker Hub:
 
--   You can find the workflow [here](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml).
--   The latest Docker image is always available at: `pkinif/jenkins:latest`.
+- **Main branch:** [Build and Push](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_docker.yaml) — runs on every push to `main`.
+- **Prod branch (instructor / EC2):** [Prod — build, push, deploy EC2](https://github.com/pkinif/jenkins_setup/actions/workflows/deploy_prod_ec2.yaml) — runs on every push to `prod` (see `docs/PROD.md`).
+
+The Compose file pulls **`pierrickkinif/jenkins:latest`**. Older README examples may say `pkinif/jenkins`; use the same image as in `docker-compose.yml`.
 
 Happy CI/CD building! 🚀
 

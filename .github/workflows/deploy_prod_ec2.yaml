@@ -14,6 +14,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Build date (UTC)
+        id: date
+        run: echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -25,7 +29,15 @@ jobs:
         with:
           context: .
           push: true
-          tags: pierrickkinif/jenkins:latest
+          tags: |
+            pierrickkinif/jenkins:latest
+            pierrickkinif/jenkins:${{ github.ref_name }}-${{ github.run_number }}
+            pierrickkinif/jenkins:sha-${{ github.sha }}
+          build-args: |
+            BUILD_DATE=${{ steps.date.outputs.date }}
+            VCS_REF=${{ github.sha }}
+            CI_WORKFLOW=${{ github.workflow }}
+            IMAGE_TAG=${{ github.ref_name }}-${{ github.run_number }}
 
   deploy-ec2:
     needs: build-and-push
