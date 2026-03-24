@@ -2,7 +2,7 @@
 
 # Jenkins Setup for Local Development
 
-Welcome to your **local Jenkins setup**! In this project, you will set up and maintain your own Jenkins server running inside Docker. Follow the instructions carefully.
+Welcome to your **local Jenkins setup**! In this project, you will set up and maintain your own Jenkins server running inside Docker. Follow the instructions carefully!
 
 ## 🔹 Pre-requisites
 
