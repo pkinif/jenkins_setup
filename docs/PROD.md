@@ -41,15 +41,6 @@ Pense aussi à associer sur l’EC2 la **clé publique** correspondant au secret
 
 Les **vraies valeurs** ne doivent **pas** être commitées ; elles vivent uniquement dans les secrets du dépôt (ou de l’organisation).
 
-## Fichier `.Renviron` (pédagogie / reproduction locale)
-
-Pour que les étudiants **reproduisent la logique** sans exposer tes accès :
-
-- Copier **`.Renviron.example`** vers **`.Renviron`** (déjà ignoré par Git).
-- Renseigner leurs propres valeurs pour des scripts locaux, de la doc, ou des TPs **sans** les pousser sur GitHub.
-
-Le déploiement CI utilise les **secrets GitHub**, pas le `.Renviron` du runner.
-
 ## Workflow
 
 1. Intégrer les changements sur `main` comme d’habitude.
