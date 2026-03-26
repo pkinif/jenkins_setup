@@ -1,31 +1,5 @@
 FROM jenkins/jenkins:latest
-
-# Renseigné par GitHub Actions (build-args) — démo CI/CD pour les étudiants.
-ARG BUILD_DATE=local
-ARG VCS_REF=local
-ARG CI_WORKFLOW=local
-ARG IMAGE_TAG=local
-
-LABEL org.opencontainers.image.created="${BUILD_DATE}"
-LABEL org.opencontainers.image.revision="${VCS_REF}"
-LABEL org.opencontainers.image.title="Jenkins DLH (image construite en CI/CD)"
-
 USER root
-
-RUN printf '%s\n' \
-  "=== Trace CI/CD — cette image a ete construite par GitHub Actions ===" \
-  "" \
-  "Date de build (UTC): ${BUILD_DATE}" \
-  "Commit du depot jenkins_setup: ${VCS_REF}" \
-  "Workflow GitHub Actions: ${CI_WORKFLOW}" \
-  "Tag pousse sur Docker Hub (exemple principal): ${IMAGE_TAG}" \
-  "" \
-  "Commande pour afficher ce fichier:" \
-  "  docker exec jenkins cat /opt/jenkins-cicd-info.txt" \
-  "" \
-  "Autres tags sur Hub (meme build): latest, branche-numero_run, sha-hash_commit" \
-  > /opt/jenkins-cicd-info.txt && chmod 644 /opt/jenkins-cicd-info.txt
-
 # Install base dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dirmngr \
